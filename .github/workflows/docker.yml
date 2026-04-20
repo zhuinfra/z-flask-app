@@ -31,6 +31,15 @@ jobs:
             ${{ secrets.DOCKER_USERNAME }}/z-flask-app:latest
             ${{ secrets.DOCKER_USERNAME }}/z-flask-app:${{ env.IMAGE_TAG }}
 
+      - name: Set up SSH key for gitops repo
+        if: github.event_name == 'push'
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.GITOPS_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan github.com >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
+
       - name: Update gitops repo
         if: github.event_name == 'push'
         run: |
